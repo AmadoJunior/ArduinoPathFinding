@@ -1,3 +1,18 @@
+//Servo & UltrasonicS Libraries
+#include <HCSR04.h>
+#include <Servo.h>
+
+//Init Servo & UltrasonicS
+#define TRIG_PIN 12
+#define ECHO_PIN 6 
+#define SERVO_PIN 3
+UltraSonicDistanceSensor sensor(TRIG_PIN, ECHO_PIN);
+Servo myServo;
+
+//Servo & UltrasonicS Vars
+long distance;
+int servoAngle = 0;
+
 //MOTOR SETUP
   //RIGHT MOTOR
   int R_SPEED = 11;
@@ -20,10 +35,31 @@ void setup() {
   pinMode(R_DIR_2, OUTPUT);
   pinMode(L_DIR_2, OUTPUT);
 
-  Serial.begin(96000);
+  //SERVO SETUP
+  myServo.attach(SERVO_PIN);
+  myServo.write(90);
+  Serial.begin(9600);
 }
 
 void loop() {
+  //UltrasonicS distance
+  distance = sensor.measureDistanceCm();
+  Serial.println(distance);
+
+  //Servo test
+  myServo.write(0);
+  distance = sensor.measureDistanceCm();
+  Serial.println(distance);
+  delay(1000);
+  myServo.write(180);
+  distance = sensor.measureDistanceCm();
+  Serial.println(distance);
+  delay(1000);
+  myServo.write(90);
+  distance = sensor.measureDistanceCm();
+  Serial.println(distance);
+  delay(1000);
+  
   //RIGHT MOTOR
   digitalWrite(R_DIR_1, LOW);
   digitalWrite(R_DIR_2, HIGH);

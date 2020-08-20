@@ -1,7 +1,7 @@
 #include <Servo.h>
 #include <HCSR04.h>
 #define TRIG_PIN 12
-#define ECHO_PIN 11 
+#define ECHO_PIN 6
 
 UltraSonicDistanceSensor sensor(TRIG_PIN, ECHO_PIN);
 Servo myservo;
@@ -20,7 +20,8 @@ void setup() {
 
 void loop() {
   a = sensor.measureDistanceCm();
-  Serial.println(a);
+  //Serial.println(a);
+  Serial.println(angle);
   if(a <= 20 && sentinel){
     angle++;
     if(angle >= 170){
