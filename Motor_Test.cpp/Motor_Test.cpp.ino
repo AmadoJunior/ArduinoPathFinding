@@ -12,7 +12,7 @@ Servo myServo;
 //Servo & UltrasonicS Vars
 long distance;
 int servoAngle = 0;
-String bestPath;
+int bestPath;
 
 //MOTOR SETUP
   //RIGHT MOTOR
@@ -39,9 +39,9 @@ String findPath(UltraSonicDistanceSensor &sensor, Servo &servo){
       distanceCm = 420;
     }
     firstHalfSum += distanceCm;
-    servoAngle += 5;
+    servoAngle += 2;
     servo.write(servoAngle);
-    delay(80);
+    delay(50);
   }
   while(servoAngle <= 180){
     distanceCm = sensor.measureDistanceCm();
@@ -60,6 +60,117 @@ String findPath(UltraSonicDistanceSensor &sensor, Servo &servo){
     direction = "left";
   }
   return direction;
+}
+int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
+  long distanceCm = 0;
+  int servoAngle = 0;
+  servo.write(servoAngle);
+  long maxSum = 0;
+  long tempSum = 0;
+  int count = 0;
+  int arr[100];
+  int subArraySize = 15;
+  int pos = 0;
+  while(servoAngle <= 180){
+    distanceCm = sensor.measureDistanceCm();
+    if(distanceCm == -1){
+      distanceCm = 400;
+    }
+    arr[count] = distanceCm;
+    count++;
+    servoAngle += 2;
+    servo.write(servoAngle);
+    delay(50);
+  }
+  servo.write(90);
+  for(int i = 0; i < subArraySize; i++){
+    tempSum += arr[i];
+  }
+  for(int i = subArraySize; i < 90; i++){
+    tempSum = tempSum - arr[i - subArraySize] + arr[i];
+    if(tempSum > maxSum){
+      maxSum = tempSum;
+      pos = i;
+    }
+  }
+  return pos*2;
+}
+
+int findBestPath2(UltraSonicDistanceSensor &sensor, Servo &servo){
+  long distanceCm = 0;
+  int servoAngle = 0;
+  servo.write(servoAngle);
+  long maxSum = 0;
+  long tempSum = 0;
+  int count = 0;
+  int arr[200];
+  int subArraySize = 5;
+  int pos = 0;
+  while(servoAngle <= 180){
+    distanceCm = sensor.measureDistanceCm();
+    if(distanceCm == -1){
+      distanceCm = 300;
+    }
+    arr[count] = distanceCm;
+    count++;
+    servoAngle++;
+    servo.write(servoAngle);
+    delay(20);
+  }
+  servo.write(90);
+  for(int i = 0; i < subArraySize; i++){
+    tempSum += arr[i];
+  }
+  for(int i = subArraySize; i < 90; i++){
+    tempSum = tempSum - arr[i - subArraySize] + arr[i];
+    if(tempSum > maxSum){
+      maxSum = tempSum;
+      pos = i;
+    }
+  }
+  return pos;
+}
+
+double turnLeft(double angle){
+      double percentageL = angle/180;
+      double delayNumL = 530*percentageL;
+      digitalWrite(R_DIR_1, LOW);
+      digitalWrite(R_DIR_2, HIGH);
+      digitalWrite(L_DIR_1, HIGH);
+      digitalWrite(L_DIR_2, LOW);
+      analogWrite(R_SPEED, 130);
+      analogWrite(L_SPEED, 130);
+      //delay(30+265);
+      delay(30 + (unsigned long) delayNumL);
+      return delayNumL;
+}
+double turnRight(double angle){
+      double percentageR = angle/180;
+      double delayNumR = 530*percentageR;
+      digitalWrite(R_DIR_1, HIGH);
+      digitalWrite(R_DIR_2, LOW);
+      digitalWrite(L_DIR_1, LOW);
+      digitalWrite(L_DIR_2, HIGH);
+      analogWrite(R_SPEED, 130);
+      analogWrite(L_SPEED, 130);
+      //delay(30+265);
+      delay(30 + (unsigned long) delayNumR);
+      return delayNumR;
+}
+void backUp(){
+  digitalWrite(R_DIR_1, HIGH);
+  digitalWrite(R_DIR_2, LOW);
+  digitalWrite(L_DIR_1, HIGH);
+  digitalWrite(L_DIR_2, LOW);
+  analogWrite(R_SPEED, 130);
+  analogWrite(L_SPEED, 130);
+  delay(250);
+  analogWrite(R_SPEED, 0);
+  analogWrite(L_SPEED, 0);
+  digitalWrite(R_DIR_1, LOW);
+  digitalWrite(R_DIR_2, HIGH);
+  digitalWrite(L_DIR_1, LOW);
+  digitalWrite(L_DIR_2, HIGH);
 }
 
 void setup() {
@@ -99,23 +210,18 @@ void loop() {
     analogWrite(R_SPEED, 0);
     analogWrite(L_SPEED, 0);
     delay(1000);
-    bestPath = findPath(sensor, myServo);
-    if(bestPath == "left"){
-      digitalWrite(R_DIR_1, LOW);
-      digitalWrite(R_DIR_2, HIGH);
-      digitalWrite(L_DIR_1, HIGH);
-      digitalWrite(L_DIR_2, LOW);
-      analogWrite(R_SPEED, 120);
-      analogWrite(L_SPEED, 120);
-      delay(300);
-    } else {
-      digitalWrite(R_DIR_1, HIGH);
-      digitalWrite(R_DIR_2, LOW);
-      digitalWrite(L_DIR_1, LOW);
-      digitalWrite(L_DIR_2, HIGH);
-      analogWrite(R_SPEED, 120);
-      analogWrite(L_SPEED, 120);
-      delay(300);
+    backUp();
+    bestPath = findBestPath2(sensor, myServo);
+    if(bestPath > 0 && bestPath < 90){
+      double leftAngle = 90 - (double) bestPath;
+      Serial.print("Turning left at degree ");
+      Serial.print(leftAngle);
+      turnLeft(leftAngle+10);  
+    } else if(bestPath >= 90 && bestPath <= 180){
+      double rightAngle = (double) bestPath - 90;
+      Serial.print("Turning right at degree ");
+      Serial.print(rightAngle+10);
+      turnRight(rightAngle);  
     }
   }
 }
