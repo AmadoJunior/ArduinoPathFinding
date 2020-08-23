@@ -33,6 +33,7 @@ double rightAngle = 0;
   int L_DIR_2 = 7;
   
 //FUNCTIONS ========================================
+//MaxSubArray Method
 int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
   //Initializing
   long distanceCm = 0;
@@ -40,7 +41,7 @@ int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
   long maxSum = 0;
   long tempSum = 0;
   int count = 0;
-  int arr[110];
+  int arr[100];
   int subArraySize = 16;
   int pos = 0;
 
@@ -73,7 +74,7 @@ int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
   servo.write(90);
 
   //Finding Max SubArray
-  for(int i = subArraySize; i < 90; i++){
+  for(int i = subArraySize+1; i < 90; i++){
     
     tempSum = tempSum - arr[i - subArraySize] + arr[i];
     
@@ -233,13 +234,11 @@ void loop() {
       leftAngle = 180 - (double) bestPath;
       leftAngle = 90 - leftAngle;
       turnLeft(leftAngle+10, curBatteryPercentage);
-      leftAngle = 0;
       
     } else if(bestPath >= 0 && bestPath < 90){
       
       rightAngle = 90 - (double) bestPath;
       turnRight(rightAngle+10, curBatteryPercentage);
-      rightAngle = 0;
       
     }
     
