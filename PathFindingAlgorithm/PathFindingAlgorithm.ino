@@ -9,9 +9,12 @@
 UltraSonicDistanceSensor sensor(TRIG_PIN, ECHO_PIN);
 Servo myServo;
 
+//VARS
 //Servo & UltrasonicS Vars
 long distance;
 int bestPath;
+//Voltage Percentage Var
+float curBatteryPercentage;
 
 //MOTOR SETUP
   //RIGHT MOTOR
@@ -24,8 +27,7 @@ int bestPath;
   int L_DIR_1 = 8;
   int L_DIR_2 = 7;
   
-//Functions
-
+//FUNCTIONS
 int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
   //Initializing
   long distanceCm = 0;
@@ -141,9 +143,9 @@ void backUp(float curVoltagePercentage){
   digitalWrite(L_DIR_2, LOW);
   
   //Writing Speed
-  float speed = 170 / curVoltagePercentage
-  analogWrite(R_SPEED, (int) speed);
-  analogWrite(L_SPEED, (int) speed);
+  float speed = 170 / curVoltagePercentage;
+  analogWrite(R_SPEED, speed);
+  analogWrite(L_SPEED, speed);
   delay(200);
   
   //Reseting Speed and Direction
@@ -156,6 +158,23 @@ void backUp(float curVoltagePercentage){
   
 }
 
+void setDirectionForward(){
+  //Set Direction Forward
+  digitalWrite(R_DIR_1, LOW);
+  digitalWrite(R_DIR_2, HIGH);
+  digitalWrite(L_DIR_1, LOW);
+  digitalWrite(L_DIR_2, HIGH);
+}
+
+float returnBatteryPercentage(){
+  //AnalogRead for Voltage
+  int sensorValue = analogRead(A0);
+  float voltage = sensorValue * (5.0 / 1023.0);
+  float curVoltagePercentage  = voltage / 5;
+  return curVoltagePercentage;
+}
+
+//SETUP
 void setup() {
   //SETUP PIN_MODE
   pinMode(R_SPEED, OUTPUT);
@@ -176,47 +195,45 @@ void setup() {
   Serial.begin(9600);
 }
 
+//LOOP
 void loop() {
-  //UltrasonicS distance
+  //UltrasonicS Scan
   distance = sensor.measureDistanceCm();
 
-  //AnalogRead for Voltage
-  int sensorValue = analogRead(A0);
-  float voltage = sensorValue * (5.0 / 1023.0);
-  float curVoltagePercentage  = voltage / 5;
+  //Reading Battery
+  curBatteryPercentage = returnBatteryPercentage();
   
-  //Set Direction Forward
-  digitalWrite(R_DIR_1, LOW);
-  digitalWrite(R_DIR_2, HIGH);
-  digitalWrite(L_DIR_1, LOW);
-  digitalWrite(L_DIR_2, HIGH);
+  setDirectionForward();
 
   //Main Logic
   if(distance > 20 || distance == -1){
     
-    int forwardSpeed = 200 / curVoltagePercentage;
-    analogWrite(R_SPEED, 200);
-    analogWrite(L_SPEED, 200);
+    float forwardSpeed = 200 / curBatteryPercentage;
+    analogWrite(R_SPEED, (int) 200);
+    analogWrite(L_SPEED, (int) 200);
     
   } else {
     
     analogWrite(R_SPEED, 0);
     analogWrite(L_SPEED, 0);
     delay(100);
-    backUp(curVoltagePercentage);
+    
+    backUp(curBatteryPercentage);
     bestPath = findBestPath(sensor, myServo);
     
     if(bestPath >= 90 && bestPath <= 200){
       
       double leftAngle = 180 - (double) bestPath;
       leftAngle = 90 - leftAngle;
-      turnLeft(leftAngle, curVoltagePercentage);  
+      turnLeft(leftAngle, curBatteryPercentage);  
       
     } else if(bestPath >= 0 && bestPath < 90){
       
       double rightAngle = 90 - (double) bestPath;
-      turnRight(rightAngle, curVoltagePercentage);  
+      turnRight(rightAngle, curBatteryPercentage);  
       
     }
+    
   }
+  
 }
