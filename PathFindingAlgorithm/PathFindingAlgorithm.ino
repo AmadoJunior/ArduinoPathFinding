@@ -1,15 +1,15 @@
-//Servo & UltrasonicS Libraries ========================================
+//Servo & UltrasonicS Libraries ================================================================================
 #include <HCSR04.h>
 #include <Servo.h>
 
-//Init Servo & UltrasonicS ========================================
+//Init Servo & UltrasonicS ================================================================================
 #define TRIG_PIN 12
 #define ECHO_PIN 6 
 #define SERVO_PIN 3
 UltraSonicDistanceSensor sensor(TRIG_PIN, ECHO_PIN);
 Servo myServo;
 
-//VARS ========================================
+//VARS ================================================================================
 //Servo & UltrasonicS Vars
 long distance;
 int bestPath;
@@ -21,7 +21,7 @@ float forwardSpeed = 0;
 double leftAngle = 0;
 double rightAngle = 0;
 
-//MOTOR SETUP ========================================
+//MOTOR SETUP ================================================================================
   //RIGHT MOTOR
   int R_SPEED = 11;
   int R_DIR_1 = 2;
@@ -32,7 +32,7 @@ double rightAngle = 0;
   int L_DIR_1 = 8;
   int L_DIR_2 = 7;
   
-//FUNCTIONS ========================================
+//FUNCTIONS ================================================================================
 //MaxSubArray Method
 int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
   //Initializing
@@ -89,7 +89,7 @@ int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
   
 }
 
-//Left Turn ========================================
+//Left Turn ================================================================================
 double turnLeft(double angle, float curVoltagePercentage){
   
   //Calc Delay Num
@@ -114,7 +114,7 @@ double turnLeft(double angle, float curVoltagePercentage){
  
 }
 
-//Right Turn ========================================
+//Right Turn ================================================================================
 double turnRight(double angle, float curVoltagePercentage){
   
   //Calc Delay Num
@@ -139,7 +139,7 @@ double turnRight(double angle, float curVoltagePercentage){
      
 }
 
-//BakcUp ========================================
+//BakcUp ================================================================================
 void backUp(float curVoltagePercentage){
   
   //Setting Direction
@@ -164,7 +164,7 @@ void backUp(float curVoltagePercentage){
   
 }
 
-//Set Direction Forward ========================================
+//Set Direction Forward ================================================================================
 void setDirectionForward(){
   //Set Direction Forward
   digitalWrite(R_DIR_1, LOW);
@@ -173,7 +173,7 @@ void setDirectionForward(){
   digitalWrite(L_DIR_2, HIGH);
 }
 
-//Measure Voltage ========================================
+//Measure Voltage ================================================================================
 float returnBatteryPercentage(){
   //AnalogRead for Voltage
   int sensorValue = analogRead(A0);
@@ -182,7 +182,7 @@ float returnBatteryPercentage(){
   return curVoltagePercentage;
 }
 
-//SETUP ========================================
+//SETUP ================================================================================
 void setup() {
   //SETUP PIN_MODE
   pinMode(R_SPEED, OUTPUT);
@@ -203,7 +203,7 @@ void setup() {
   Serial.begin(9600);
 }
 
-//LOOP ========================================
+//LOOP ================================================================================
 void loop() {
   //UltrasonicS Scan
   distance = sensor.measureDistanceCm();
