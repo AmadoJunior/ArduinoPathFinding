@@ -1,22 +1,27 @@
-//Servo & UltrasonicS Libraries
+//Servo & UltrasonicS Libraries ========================================
 #include <HCSR04.h>
 #include <Servo.h>
 
-//Init Servo & UltrasonicS
+//Init Servo & UltrasonicS ========================================
 #define TRIG_PIN 12
 #define ECHO_PIN 6 
 #define SERVO_PIN 3
 UltraSonicDistanceSensor sensor(TRIG_PIN, ECHO_PIN);
 Servo myServo;
 
-//VARS
+//VARS ========================================
 //Servo & UltrasonicS Vars
 long distance;
 int bestPath;
 //Voltage Percentage Var
-float curBatteryPercentage;
+float curBatteryPercentage = 0;
+//Forward Speed Var
+float forwardSpeed = 0;
+//Turn Angles Vars
+double leftAngle = 0;
+double rightAngle = 0;
 
-//MOTOR SETUP
+//MOTOR SETUP ========================================
   //RIGHT MOTOR
   int R_SPEED = 11;
   int R_DIR_1 = 2;
@@ -27,7 +32,7 @@ float curBatteryPercentage;
   int L_DIR_1 = 8;
   int L_DIR_2 = 7;
   
-//FUNCTIONS
+//FUNCTIONS ========================================
 int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
   //Initializing
   long distanceCm = 0;
@@ -35,8 +40,8 @@ int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
   long maxSum = 0;
   long tempSum = 0;
   int count = 0;
-  int arr[200];
-  int subArraySize = 20;
+  int arr[110];
+  int subArraySize = 16;
   int pos = 0;
 
   //Scanning and Setting TempSum
@@ -45,7 +50,6 @@ int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
     
     //Docs Recommend 60ms Between Measurements
     distanceCm = sensor.measureDistanceCm();
-    delay(65);
     
     //Edge Case: Object Out Of Range
     if(distanceCm == -1){
@@ -60,30 +64,31 @@ int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
     //Storing and Advancing
     arr[count] = distanceCm;
     count++;
-    servoAngle++;
+    servoAngle+=2;
     servo.write(servoAngle);
-    
+    delay(30);
   }
   
   //Resetting Head Pos
   servo.write(90);
 
   //Finding Max SubArray
-  for(int i = subArraySize; i < 180; i++){
+  for(int i = subArraySize; i < 90; i++){
     
     tempSum = tempSum - arr[i - subArraySize] + arr[i];
     
     if(tempSum >= maxSum){
       maxSum = tempSum;
-      pos = i - 10;
+      pos = i - 8;
     }
     
   }
   
-  return pos;
+  return pos*2;
   
 }
 
+//Left Turn ========================================
 double turnLeft(double angle, float curVoltagePercentage){
   
   //Calc Delay Num
@@ -102,13 +107,13 @@ double turnLeft(double angle, float curVoltagePercentage){
     analogWrite(L_SPEED, speed);
 
   //Delay 
-    //delay(30+265);
      unsigned long startUpCompensation = 30;
      delay(startUpCompensation + (unsigned long) delayNumL);
      return delayNumL;
  
 }
 
+//Right Turn ========================================
 double turnRight(double angle, float curVoltagePercentage){
   
   //Calc Delay Num
@@ -127,13 +132,13 @@ double turnRight(double angle, float curVoltagePercentage){
     analogWrite(L_SPEED, speed);
 
   //Delay
-    //delay(30+265);
     unsigned long startUpCompensation = 30;
     delay(startUpCompensation + (unsigned long) delayNumR);
     return delayNumR;
      
 }
 
+//BakcUp ========================================
 void backUp(float curVoltagePercentage){
   
   //Setting Direction
@@ -158,6 +163,7 @@ void backUp(float curVoltagePercentage){
   
 }
 
+//Set Direction Forward ========================================
 void setDirectionForward(){
   //Set Direction Forward
   digitalWrite(R_DIR_1, LOW);
@@ -166,6 +172,7 @@ void setDirectionForward(){
   digitalWrite(L_DIR_2, HIGH);
 }
 
+//Measure Voltage ========================================
 float returnBatteryPercentage(){
   //AnalogRead for Voltage
   int sensorValue = analogRead(A0);
@@ -174,7 +181,7 @@ float returnBatteryPercentage(){
   return curVoltagePercentage;
 }
 
-//SETUP
+//SETUP ========================================
 void setup() {
   //SETUP PIN_MODE
   pinMode(R_SPEED, OUTPUT);
@@ -195,7 +202,7 @@ void setup() {
   Serial.begin(9600);
 }
 
-//LOOP
+//LOOP ========================================
 void loop() {
   //UltrasonicS Scan
   distance = sensor.measureDistanceCm();
@@ -208,7 +215,7 @@ void loop() {
   //Main Logic
   if(distance > 20 || distance == -1){
     
-    float forwardSpeed = 200 / curBatteryPercentage;
+    forwardSpeed = 200 / curBatteryPercentage;
     analogWrite(R_SPEED, (int) 200);
     analogWrite(L_SPEED, (int) 200);
     
@@ -223,14 +230,16 @@ void loop() {
     
     if(bestPath >= 90 && bestPath <= 200){
       
-      double leftAngle = 180 - (double) bestPath;
+      leftAngle = 180 - (double) bestPath;
       leftAngle = 90 - leftAngle;
-      turnLeft(leftAngle, curBatteryPercentage);  
+      turnLeft(leftAngle+10, curBatteryPercentage);
+      leftAngle = 0;
       
     } else if(bestPath >= 0 && bestPath < 90){
       
-      double rightAngle = 90 - (double) bestPath;
-      turnRight(rightAngle, curBatteryPercentage);  
+      rightAngle = 90 - (double) bestPath;
+      turnRight(rightAngle+10, curBatteryPercentage);
+      rightAngle = 0;
       
     }
     

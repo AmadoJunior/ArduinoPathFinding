@@ -21,7 +21,7 @@ double turnLeft(double angle, float curVoltagePercentage){
       digitalWrite(L_DIR_2, LOW);
 
       //Calc/Set Speed
-      float speed = 160 / curVoltagePercentage;
+      float speed = 170 / curVoltagePercentage;
       analogWrite(R_SPEED, speed);
       analogWrite(L_SPEED, speed);
 
@@ -43,7 +43,7 @@ double turnRight(double angle, float curVoltagePercentage){
       digitalWrite(L_DIR_2, HIGH);
       
       //Calc/Set Speed
-      float speed = 160 / curVoltagePercentage;
+      float speed = 170 / curVoltagePercentage;
       analogWrite(R_SPEED, speed);
       analogWrite(L_SPEED, speed);
 
