@@ -104,7 +104,7 @@ int findBestPath2(UltraSonicDistanceSensor &sensor, Servo &servo){
   long tempSum = 0;
   int count = 0;
   int arr[200];
-  int subArraySize = 10;
+  int subArraySize = 15;
   int pos = 0;
   while(servoAngle <= 180){
     distanceCm = sensor.measureDistanceCm();
@@ -151,8 +151,8 @@ double turnRight(double angle){
       digitalWrite(R_DIR_2, LOW);
       digitalWrite(L_DIR_1, LOW);
       digitalWrite(L_DIR_2, HIGH);
-      analogWrite(R_SPEED, 130);
-      analogWrite(L_SPEED, 130);
+      analogWrite(R_SPEED, 160);
+      analogWrite(L_SPEED, 160);
       //delay(30+265);
       delay(40 + (unsigned long) delayNumR);
       return delayNumR;
@@ -162,8 +162,8 @@ void backUp(){
   digitalWrite(R_DIR_2, LOW);
   digitalWrite(L_DIR_1, HIGH);
   digitalWrite(L_DIR_2, LOW);
-  analogWrite(R_SPEED, 130);
-  analogWrite(L_SPEED, 130);
+  analogWrite(R_SPEED, 160);
+  analogWrite(L_SPEED, 160);
   delay(250);
   analogWrite(R_SPEED, 0);
   analogWrite(L_SPEED, 0);
@@ -196,32 +196,29 @@ void setup() {
 void loop() {
   //UltrasonicS distance
   distance = sensor.measureDistanceCm();
-  Serial.println("Distance: " + distance);
+  //Serial.println("Distance: " + distance);
   //Go forward
   digitalWrite(R_DIR_1, LOW);
   digitalWrite(R_DIR_2, HIGH);
   digitalWrite(L_DIR_1, LOW);
   digitalWrite(L_DIR_2, HIGH);
 
-  if(distance > 20 || distance == -1){
-    analogWrite(R_SPEED, 140);
-    analogWrite(L_SPEED, 140);
+  if(distance > 10 || distance == -1){
+    analogWrite(R_SPEED, 190);
+    analogWrite(L_SPEED, 190);
   } else {
     analogWrite(R_SPEED, 0);
     analogWrite(L_SPEED, 0);
     delay(100);
     backUp();
     bestPath = findBestPath2(sensor, myServo);
-    if(bestPath >= 90 && bestPath <= 180){
+    if(bestPath >= 90 && bestPath <= 200){
       double leftAngle = 180 - (double) bestPath;
-      Serial.print("Turning left at degree ");
-      Serial.print(leftAngle+25);
-      turnLeft(leftAngle);  
+      leftAngle = 90 - leftAngle;
+      turnLeft(leftAngle+30);  
     } else if(bestPath >= 0 && bestPath < 90){
       double rightAngle = 90 - (double) bestPath;
-      Serial.print("Turning right at degree ");
-      Serial.print(rightAngle+25);
-      turnRight(rightAngle);  
+      turnRight(rightAngle+30);  
     }
   }
 }
