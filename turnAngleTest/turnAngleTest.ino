@@ -66,8 +66,8 @@ void loop() {
 
   //AnalogRead for Voltage
   int sensorValue = analogRead(A0);
-  float voltage = sensorValue * (5.0 / 1023.0);
-  float curVoltagePercentage  = voltage / 5;
+  float voltage = sensorValue * (5.0 / 1023.0) * 2;
+  float curVoltagePercentage  = voltage / 9;
 
   //Forward Only Test
 //  digitalWrite(R_DIR_1, LOW);

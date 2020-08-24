@@ -67,7 +67,7 @@ int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
     count++;
     servoAngle+=2;
     servo.write(servoAngle);
-    delay(30);
+    delay(20);
   }
   
   //Resetting Head Pos
@@ -214,11 +214,11 @@ void loop() {
   setDirectionForward();
 
   //Main Logic
-  if(distance > 20 || distance == -1){
+  if(distance > 25 || distance == -1){
     
     forwardSpeed = 200 / curBatteryPercentage;
-    analogWrite(R_SPEED, (int) 200);
-    analogWrite(L_SPEED, (int) 200);
+    analogWrite(R_SPEED, (int) 220);
+    analogWrite(L_SPEED, (int) 220);
     
   } else {
     
@@ -233,12 +233,12 @@ void loop() {
       
       leftAngle = 180 - (double) bestPath;
       leftAngle = 90 - leftAngle;
-      turnLeft(leftAngle+10, curBatteryPercentage);
+      turnLeft(leftAngle+15, curBatteryPercentage);
       
     } else if(bestPath >= 0 && bestPath < 90){
       
       rightAngle = 90 - (double) bestPath;
-      turnRight(rightAngle+10, curBatteryPercentage);
+      turnRight(rightAngle+15, curBatteryPercentage);
       
     }
     
