@@ -34,7 +34,7 @@ double rightAngle = 0;
   
 //FUNCTIONS ================================================================================
 //MaxSubArray Method
-int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
+int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo, float curVoltagePercentage){
   //Initializing
   long distanceCm = 0;
   int servoAngle = 0;
@@ -42,11 +42,28 @@ int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
   long tempSum = 0;
   int count = 0;
   int arr[100];
-  int subArraySize = 16;
+  int subArraySize = 18;
   int pos = 0;
 
-  //Scanning and Setting TempSum
+  
+  
+  //Set Directions Right
+  digitalWrite(R_DIR_1, HIGH);
+  digitalWrite(R_DIR_2, LOW);
+  digitalWrite(L_DIR_1, LOW);
+  digitalWrite(L_DIR_2, HIGH);
+      
+  //Speed
+  float speedR = 110 / curVoltagePercentage;
+  analogWrite(R_SPEED, speedR);
+  analogWrite(L_SPEED, speedR);
+  //SetHead
   servo.write(servoAngle);
+  delay(130);
+  analogWrite(R_SPEED, 0);
+  analogWrite(L_SPEED, 0);
+  
+  //Scanning and Setting TempSum
   while(servoAngle <= 180){
     
     //Docs Recommend 60ms Between Measurements
@@ -61,6 +78,21 @@ int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
     if(servoAngle >= 0 && servoAngle <= subArraySize){
       tempSum += distanceCm;
     }
+    if(servoAngle == 90) {
+      //Set Directions Left
+      digitalWrite(R_DIR_1, LOW);
+      digitalWrite(R_DIR_2, HIGH);
+      digitalWrite(L_DIR_1, HIGH);
+      digitalWrite(L_DIR_2, LOW);
+
+      //Speed
+      float speedL = 110 / curVoltagePercentage;
+      analogWrite(R_SPEED, speedL);
+      analogWrite(L_SPEED, speedL);
+      delay(230);
+      analogWrite(R_SPEED, 0);
+      analogWrite(L_SPEED, 0);
+    }
 
     //Storing and Advancing
     arr[count] = distanceCm;
@@ -70,8 +102,22 @@ int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
     delay(20);
   }
   
-  //Resetting Head Pos
+  //Resetting Body && Head
+  //Set Directions Right
+  digitalWrite(R_DIR_1, HIGH);
+  digitalWrite(R_DIR_2, LOW);
+  digitalWrite(L_DIR_1, LOW);
+  digitalWrite(L_DIR_2, HIGH);
+      
+  //Speed
+  analogWrite(R_SPEED, speedR);
+  analogWrite(L_SPEED, speedR);
+  
+  //SetHead
   servo.write(90);
+  delay(130);
+  analogWrite(R_SPEED, 0);
+  analogWrite(L_SPEED, 0);
 
   //Finding Max SubArray
   for(int i = subArraySize+1; i < 90; i++){
@@ -80,7 +126,7 @@ int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo){
     
     if(tempSum >= maxSum){
       maxSum = tempSum;
-      pos = i - 8;
+      pos = i - 9;
     }
     
   }
@@ -227,18 +273,18 @@ void loop() {
     delay(100);
     
     backUp(curBatteryPercentage);
-    bestPath = findBestPath(sensor, myServo);
+    bestPath = findBestPath(sensor, myServo, curBatteryPercentage);
     
     if(bestPath >= 90 && bestPath <= 200){
       
       leftAngle = 180 - (double) bestPath;
       leftAngle = 90 - leftAngle;
-      turnLeft(leftAngle+15, curBatteryPercentage);
+      turnLeft(leftAngle+20, curBatteryPercentage);
       
     } else if(bestPath >= 0 && bestPath < 90){
       
       rightAngle = 90 - (double) bestPath;
-      turnRight(rightAngle+15, curBatteryPercentage);
+      turnRight(rightAngle+20, curBatteryPercentage);
       
     }
     

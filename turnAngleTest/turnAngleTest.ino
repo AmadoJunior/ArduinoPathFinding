@@ -8,6 +8,37 @@
   int L_SPEED = 5;
   int L_DIR_1 = 8;
   int L_DIR_2 = 7;
+
+void scan(float curVoltagePercentage){
+      //Set Directions Right
+      digitalWrite(R_DIR_1, HIGH);
+      digitalWrite(R_DIR_2, LOW);
+      digitalWrite(L_DIR_1, LOW);
+      digitalWrite(L_DIR_2, HIGH);
+      
+      //Speed
+      float speedR = 110 / curVoltagePercentage;
+      analogWrite(R_SPEED, speedR);
+      analogWrite(L_SPEED, speedR);
+      delay(130);
+      analogWrite(R_SPEED, 0);
+      analogWrite(L_SPEED, 0);
+      delay(2000);
+      //Set Directions Left
+      digitalWrite(R_DIR_1, LOW);
+      digitalWrite(R_DIR_2, HIGH);
+      digitalWrite(L_DIR_1, HIGH);
+      digitalWrite(L_DIR_2, LOW);
+
+      //Speed
+      float speedL = 110 / curVoltagePercentage;
+      analogWrite(R_SPEED, speedL);
+      analogWrite(L_SPEED, speedL);
+      delay(230);
+      analogWrite(R_SPEED, 0);
+      analogWrite(L_SPEED, 0);
+      delay(2000);
+}
   
 double turnLeft(double angle, float curVoltagePercentage){
   //Calc Delay Num
@@ -78,12 +109,15 @@ void loop() {
 //  analogWrite(L_SPEED, 200);
 
   
-  Serial.println(turnLeft(90, curVoltagePercentage));
-  analogWrite(R_SPEED, 0);
-  analogWrite(L_SPEED, 0);
-  delay(2000);
-  Serial.println(turnRight(90, curVoltagePercentage));
-  analogWrite(R_SPEED, 0);
-  analogWrite(L_SPEED, 0);
+//  Serial.println(turnLeft(90, curVoltagePercentage));
+//  analogWrite(R_SPEED, 0);
+//  analogWrite(L_SPEED, 0);
+//  delay(2000);
+//  Serial.println(turnRight(90, curVoltagePercentage));
+//  analogWrite(R_SPEED, 0);
+//  analogWrite(L_SPEED, 0);
+//  delay(2000);
+
+  scan(curVoltagePercentage);
   delay(2000);
 }
