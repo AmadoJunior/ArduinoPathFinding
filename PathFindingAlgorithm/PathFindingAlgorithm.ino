@@ -99,7 +99,7 @@ int findBestPath(UltraSonicDistanceSensor &sensor, Servo &servo, float curVoltag
     count++;
     servoAngle+=2;
     servo.write(servoAngle);
-    delay(20);
+    delay(25);
   }
   
   //Resetting Body && Head
