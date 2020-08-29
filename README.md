@@ -1,3 +1,3 @@
 # ArduinoPathFinding
-Path finding robot built using: Arduino Uno, Ultra Sonic Sensor + Servo for scanning surroundings, 2 DC motors + L293D chip for movement. 
+Build: Arduino Uno, Ultra Sonic Sensor + Servo, 2x DC Motors + L293D Driver. 
 ![BreadBoard Layout](/PathFinderLayout.png)
